@@ -1,0 +1,32 @@
+/**
+ * 
+ * Author Name - Rohit Biradar
+ * Date & Time - 30-10-2019 12:37 PM
+ * Purpose - To give request to warehouse person who will allocate the Validated Quantity from Site.com
+ * 
+ * */
+
+public with sharing class SendEmailToWarehouse {
+	
+    @AuraEnabled
+    public Static String sendRequest(String SamplerecordID)
+    {
+        Contact con = [Select id from Contact limit 1];
+        Sample__c sample = [Select Id,name from Sample__C WHERE Id =: SamplerecordID];
+        String emailLabel = System.Label.Label_Sample_Warehouse_Email;
+        EmailTemplate eml = [SELECT Id FROM EmailTemplate Where name = :emailLabel];
+        List<String> toAddresses = new List<String>{'rohit.biradar@dgenx.co'};
+        
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setTemplateId(eml.Id);
+        mail.setWhatId(sample.Id);
+        mail.setToAddresses(toAddresses);
+        mail.setTargetObjectId(con.id);
+        mail.setTreatTargetObjectAsRecipient(false);
+        mail.setSaveAsActivity(false);
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        
+        
+        return 'Successfully';
+    }
+}
